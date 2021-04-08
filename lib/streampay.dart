@@ -1,7 +1,98 @@
 library streampay;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
+import 'dart:convert';
+import 'package:dbcrypt/dbcrypt.dart';
+
+class StreamPay {
+  /// Crea TKA(Token de autenticación) a partir del TKR(Token de registro)
+  /// y numero de afiliación
+  static String createTKA(String tKR, String affiliation) {
+    final time = DateTime.now().millisecondsSinceEpoch;
+    final timeDecimal =
+        time.toRadixString(10).codeUnits; //"1616658194192".codeUnits;
+    final tkrdecimal = tKR.codeUnits;
+    final affiliationDecimal = affiliation.codeUnits;
+
+    final cad1 = calculateOr(tkrdecimal, timeDecimal);
+    final cad2 = calculateXOr(cad1.codeUnits, affiliationDecimal);
+    var bytesInLatin1 = latin1.encode(cad2);
+    var base64encoded = base64.encode(bytesInLatin1);
+    final tka =
+        DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
+    return tka;
+  }
+
+  /// Calcula la operación OR de un dos listados de enteros
+  static String calculateOr(List<int> arg1, List<int> arg2) {
+    var result = "";
+    var cad1 = _copyArray(arg1);
+    var cad2 = _copyArray(arg2);
+
+    if (cad1.length == cad2.length) {
+      result = _doOrOperation(cad1, cad2);
+    } else if (cad1.length > cad2.length) {
+      final cad2aux = _fillArray(cad2, cad1.length);
+      result = _doOrOperation(cad1, cad2aux);
+    } else if (cad2.length > cad1.length) {
+      final cad1aux = _fillArray(cad1, cad2.length);
+      result = _doOrOperation(cad1aux, cad2);
+    }
+    return result;
+  }
+
+  /// Calcula la operación XOR de un dos listados de enteros
+  static String calculateXOr(List<int> arg1, List<int> arg2) {
+    var result = "";
+    var cad1 = _copyArray(arg1);
+    var cad2 = _copyArray(arg2);
+
+    if (cad1.length == cad2.length) {
+      result = _doXOrOperation(cad1, cad2);
+    } else if (cad1.length > cad2.length) {
+      final cad2aux = _fillArray(cad2, cad1.length);
+      result = _doXOrOperation(cad1, cad2aux);
+    } else if (cad2.length > cad1.length) {
+      final cad1aux = _fillArray(cad1, cad2.length);
+      result = _doXOrOperation(cad1aux, cad2);
+    }
+    return result;
+  }
+
+  static String _doOrOperation(List<int> cad1, List<int> cad2) {
+    final length = cad1.length;
+    var result = '';
+    for (var i = 0; i < length; i++) {
+      final or = (cad1[i] | cad2[i]);
+      final character = String.fromCharCode(or);
+      result += character;
+    }
+    return result;
+  }
+
+  static String _doXOrOperation(List<int> cad1, List<int> cad2) {
+    final length = cad1.length;
+    var result = '';
+    for (var i = 0; i < length; i++) {
+      final or = (cad1[i] ^ cad2[i]);
+      final character = String.fromCharCode(or);
+      result += character;
+    }
+    return result;
+  }
+
+  static List<int> _fillArray(List<int> cad, int length) {
+    final finalLength = length - cad.length;
+    for (var i = 0; i < finalLength; i++) {
+      cad.add(0);
+    }
+    return cad;
+  }
+
+  static List<int> _copyArray(List<int> list) {
+    var newList = <int>[];
+    for (var i = 0; i < list.length; i++) {
+      newList.add(list[i]);
+    }
+    return newList;
+  }
 }
