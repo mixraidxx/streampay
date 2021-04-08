@@ -22,6 +22,22 @@ class StreamPay {
     return tka;
   }
 
+  /// Crea TKA(Token de autenticación) a partir del TKR(Token de registro)
+  /// numero de afiliación y timestamp
+  static String createTKATime(String tKR, String affiliation, String time) {
+    final timeDecimal = time.codeUnits;
+    final tkrdecimal = tKR.codeUnits;
+    final affiliationDecimal = affiliation.codeUnits;
+
+    final cad1 = calculateOr(tkrdecimal, timeDecimal);
+    final cad2 = calculateXOr(cad1.codeUnits, affiliationDecimal);
+    var bytesInLatin1 = latin1.encode(cad2);
+    var base64encoded = base64.encode(bytesInLatin1);
+    final tka =
+        DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
+    return tka;
+  }
+
   /// Calcula la operación OR de un dos listados de enteros
   static String calculateOr(List<int> arg1, List<int> arg2) {
     var result = "";
