@@ -1,12 +1,13 @@
 library streampay;
 
 import 'dart:convert';
-import 'package:dbcrypt/dbcrypt.dart';
+
+import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 
 class StreamPay {
   /// Crea TKA(Token de autenticación) a partir del TKR(Token de registro)
   /// y numero de afiliación
-  static String createTKA(String tKR, String affiliation) {
+  static Future<String> createTKA(String tKR, String affiliation) async {
     final time = DateTime.now().millisecondsSinceEpoch;
     final timeDecimal =
         time.toRadixString(10).codeUnits; //"1616658194192".codeUnits;
@@ -17,14 +18,17 @@ class StreamPay {
     final cad2 = calculateXOr(cad1.codeUnits, affiliationDecimal);
     var bytesInLatin1 = latin1.encode(cad2);
     var base64encoded = base64.encode(bytesInLatin1);
-    final tka =
-        DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
+    var salt11 = await FlutterBcrypt.saltWithRounds(rounds: 11);
+    var tka = await FlutterBcrypt.hashPw(password: base64encoded, salt: salt11);
+    // final tka =
+    //     DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
     return tka;
   }
 
   /// Crea TKA(Token de autenticación) a partir del TKR(Token de registro)
   /// numero de afiliación y timestamp
-  static String createTKATime(String tKR, String affiliation, String time) {
+  static Future<String> createTKATime(
+      String tKR, String affiliation, String time) async {
     final timeDecimal = time.codeUnits;
     final tkrdecimal = tKR.codeUnits;
     final affiliationDecimal = affiliation.codeUnits;
@@ -33,8 +37,10 @@ class StreamPay {
     final cad2 = calculateXOr(cad1.codeUnits, affiliationDecimal);
     var bytesInLatin1 = latin1.encode(cad2);
     var base64encoded = base64.encode(bytesInLatin1);
-    final tka =
-        DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
+    var salt11 = await FlutterBcrypt.saltWithRounds(rounds: 11);
+    var tka = await FlutterBcrypt.hashPw(password: base64encoded, salt: salt11);
+    // final tka =
+    //     DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
     return tka;
   }
 
