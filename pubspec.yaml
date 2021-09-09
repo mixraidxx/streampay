@@ -1,11 +1,10 @@
 name: streampay
 description: Libreria para la creacion de TKA.
 version: 1.0.1
-author: David Enriquez Solis
 homepage:
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
