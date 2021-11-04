@@ -20,8 +20,6 @@ class StreamPay {
     var base64encoded = base64.encode(bytesInLatin1);
     var salt11 = await FlutterBcrypt.saltWithRounds(rounds: 11);
     var tka = await FlutterBcrypt.hashPw(password: base64encoded, salt: salt11);
-    // final tka =
-    //     DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
     return tka;
   }
 
@@ -58,7 +56,6 @@ class StreamPay {
     var result = "";
     var cad1 = _copyArray(arg1);
     var cad2 = _copyArray(arg2);
-
     if (cad1.length == cad2.length) {
       result = _doOrOperation(cad1, cad2);
     } else if (cad1.length > cad2.length) {
@@ -76,7 +73,6 @@ class StreamPay {
     var result = "";
     var cad1 = _copyArray(arg1);
     var cad2 = _copyArray(arg2);
-
     if (cad1.length == cad2.length) {
       result = _doXOrOperation(cad1, cad2);
     } else if (cad1.length > cad2.length) {
