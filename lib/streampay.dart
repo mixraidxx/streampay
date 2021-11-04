@@ -82,6 +82,7 @@ class StreamPay {
       final cad1aux = _fillArray(cad1, cad2.length);
       result = _doXOrOperation(cad1aux, cad2);
     }
+    print("resultade de funcion xor: $result");
     return result;
   }
 
