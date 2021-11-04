@@ -30,15 +30,24 @@ class StreamPay {
   static Future<String> createTKATime(
       String tKR, String affiliation, String time) async {
     final timeDecimal = time.codeUnits;
+    print("time decimal:  $timeDecimal");
     final tkrdecimal = tKR.codeUnits;
+    print(tkrdecimal);
     final affiliationDecimal = affiliation.codeUnits;
+    print(affiliationDecimal);
 
     final cad1 = calculateOr(tkrdecimal, timeDecimal);
+    print("or : $cad1");
     final cad2 = calculateXOr(cad1.codeUnits, affiliationDecimal);
+    print("xor: $cad2");
     var bytesInLatin1 = latin1.encode(cad2);
+    print("bytesinlatin: $bytesInLatin1");
     var base64encoded = base64.encode(bytesInLatin1);
+    print("base64: $base64encoded");
     var salt11 = await FlutterBcrypt.saltWithRounds(rounds: 11);
+    print("salt11: $salt11");
     var tka = await FlutterBcrypt.hashPw(password: base64encoded, salt: salt11);
+    print("tka: $tka");
     // final tka =
     //     DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
     return tka;
