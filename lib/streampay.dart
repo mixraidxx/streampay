@@ -1,8 +1,7 @@
 library streampay;
 
 import 'dart:convert';
-
-import 'package:flutter_bcrypt/flutter_bcrypt.dart';
+import 'package:dbcrypt/dbcrypt.dart';
 
 class StreamPay {
   /// Crea TKA(Token de autenticación) a partir del TKR(Token de registro)
@@ -18,8 +17,10 @@ class StreamPay {
     final cad2 = calculateXOr(cad1.codeUnits, affiliationDecimal);
     var bytesInLatin1 = latin1.encode(cad2);
     var base64encoded = base64.encode(bytesInLatin1);
-    var salt11 = await FlutterBcrypt.saltWithRounds(rounds: 11);
-    var tka = await FlutterBcrypt.hashPw(password: base64encoded, salt: salt11);
+    var salt11 = DBCrypt().gensaltWithRounds(11);
+    //var salt11 = await FlutterBcrypt.saltWithRounds(rounds: 11);
+    //var tka = await FlutterBcrypt.hashPw(password: base64encoded, salt: salt11);
+    var tka = DBCrypt().hashpw(base64encoded, salt11);
     return tka;
   }
 
@@ -28,26 +29,17 @@ class StreamPay {
   static Future<String> createTKATime(
       String tKR, String affiliation, String time) async {
     final timeDecimal = time.codeUnits;
-    print("time decimal:  $timeDecimal");
     final tkrdecimal = tKR.codeUnits;
-    print(tkrdecimal);
     final affiliationDecimal = affiliation.codeUnits;
-    print(affiliationDecimal);
 
     final cad1 = calculateOr(tkrdecimal, timeDecimal);
-    print("or : $cad1");
     final cad2 = calculateXOr(cad1.codeUnits, affiliationDecimal);
-    print("xor: $cad2");
     var bytesInLatin1 = latin1.encode(cad2);
-    print("bytesinlatin: $bytesInLatin1");
     var base64encoded = base64.encode(bytesInLatin1);
-    print("base64: $base64encoded");
-    var salt11 = await FlutterBcrypt.saltWithRounds(rounds: 11);
-    print("salt11: $salt11");
-    var tka = await FlutterBcrypt.hashPw(password: base64encoded, salt: salt11);
-    print("tka: $tka");
-    // final tka =
-    //     DBCrypt().hashpw(base64encoded, DBCrypt().gensaltWithRounds(11));
+    final salt11 = DBCrypt().gensaltWithRounds(11);
+    final tka = DBCrypt().hashpw(base64encoded, salt11);
+    //var salt11 = await FlutterBcrypt.saltWithRounds(rounds: 11);
+    //var tka = await FlutterBcrypt.hashPw(password: base64encoded, salt: salt11);
     return tka;
   }
 
@@ -82,7 +74,6 @@ class StreamPay {
       final cad1aux = _fillArray(cad1, cad2.length);
       result = _doXOrOperation(cad1aux, cad2);
     }
-    print("resultade de funcion xor: $result");
     return result;
   }
 
